@@ -1,0 +1,70 @@
+{
+  "builders": [
+    {
+      "boot_wait": "2m",
+      "communicator": "winrm",
+      "cpus": 2,
+      "disk_size": "{{user `disk_size`}}",
+      "floppy_files": [
+        "{{user `autounattend`}}",
+        "./scripts/disable-screensaver.ps1",
+        "./scripts/disable-winrm.ps1",
+        "./scripts/enable-winrm.ps1",
+        "./scripts/microsoft-updates.bat",
+        "./scripts/win-updates.ps1"
+      ],
+      "guest_additions_mode": "disable",
+      "guest_os_type": "Windows2019_64",
+      "headless": "{{user `headless`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_url": "{{user `iso_url`}}",
+      "memory": "{{user `memory`}}",
+      "shutdown_command": "shutdown /s /t 5 /f /d p:4:1 /c \"Packer Shutdown\"",
+      "shutdown_timeout": "30m",
+      "type": "virtualbox-iso",
+      "vm_name": "WindowsServer2019",
+      "winrm_password": "vagrant",
+      "winrm_timeout": "{{user `winrm_timeout`}}",
+      "winrm_username": "vagrant"
+    }
+  ],
+  "provisioners": [
+    {
+      "scripts": [
+        "./scripts/vm-guest-tools.ps1"
+      ],
+      "type": "powershell"
+    },
+    {
+      "restart_timeout": "5m",
+      "type": "windows-restart"
+    },
+    {
+      "type": "powershell",
+      "scripts": ["./scripts/setup.ps1"]
+    },
+    {
+      "type": "windows-restart",
+      "restart_timeout": "5m"
+    },
+    {
+      "type": "powershell",
+      "scripts": ["./scripts/more-win-updates.ps1"]
+    },
+    {
+      "type": "windows-restart",
+      "restart_timeout": "30m"
+    }
+  ],
+  "variables": {
+    "autounattend": "./answer_files/Autounattend.xml",
+    "disk_size": "61440",
+    "disk_type_id": "1",
+    "memory": "4096",
+    "headless": "false",
+    "iso_url": "file:///Users/dvaliev/Downloads/Windows2019.iso",
+    "iso_checksum": "70fec2cb1d6759108820130c2b5496da",
+    "restart_timeout": "5m",
+    "winrm_timeout": "2h"
+  }
+}
